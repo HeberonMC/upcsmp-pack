@@ -2,7 +2,7 @@
   "_ayuda": "id = nombre del grupo en LuckPerms. texto: A-Z, 0-9, +, -, espacio. No cambies el char de una insignia que ya uses. Logo opcional: imagen (PNG con fondo blanco o transparente) + char_icono; con solo_icono: true se muestra solo el logo, sin la insignia de texto. prioridad: el prefijo mas alto gana si alguien tiene varios rangos. antes: texto que va delante de la insignia (con codigos &).",
   "insignias": [
     { "id": "dios",                 "texto": "DIOS",      "color": "#e0a400", "char": "EA00", "tipo": "rango", "prioridad": 100 },
-    { "id": "mod",                  "texto": "MOD",       "color": "#2f6bff", "char": "EA01", "tipo": "rango", "prioridad": 90, "antes": "&9✿✿✿ " },
+    { "id": "mod",                  "texto": "MOD",       "color": "#2f6bff", "char": "EA01", "tipo": "rango", "prioridad": 90, "antes": "&9★★★ " },
     { "id": "helper",               "texto": "HELPER",    "color": "#1fa67a", "char": "EA02", "tipo": "rango", "prioridad": 80 },
     { "id": "builder",              "texto": "BUILDER",   "color": "#c7651a", "char": "EA03", "tipo": "rango", "prioridad": 70 },
     { "id": "creador_de_contenido", "texto": "CREADOR",   "color": "#e0245e", "char": "EA04", "tipo": "rango", "prioridad": 60 },

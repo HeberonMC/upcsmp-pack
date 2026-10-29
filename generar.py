@@ -267,10 +267,14 @@ def main():
     meta_path.write_text(json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8")
 
     zip_path = SALIDA / "pack-servidor.zip"
+    # Fecha fija en cada entrada: si el contenido no cambia, el SHA1 tampoco,
+    # y no hace falta volver a subir el pack solo por regenerarlo.
     with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as z:
         for f in sorted(destino.rglob("*")):
             if f.is_file():
-                z.write(f, f.relative_to(destino).as_posix())
+                info = zipfile.ZipInfo(f.relative_to(destino).as_posix(), date_time=(2024, 1, 1, 0, 0, 0))
+                info.compress_type = zipfile.ZIP_DEFLATED
+                z.writestr(info, f.read_bytes())
     sha1 = hashlib.sha1(zip_path.read_bytes()).hexdigest()
     (SALIDA / "sha1.txt").write_text(sha1 + "\n", encoding="utf-8")
 
