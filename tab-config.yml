@@ -9,6 +9,20 @@ _DEFAULT_:
   tagprefix: "%luckperms_prefix%"
   tagsuffix: "%luckperms_suffix%"
 
+# ---------- config.yml: encabezado y pie de la lista (tecla Tab) ----------
+header-footer:
+  enabled: true
+  header:
+    - ""
+    - "&l<#3fd0ff>UPCSMP</#4c6ef5>"
+    - "&7Bienvenido, &f%player%"
+    - "&8▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
+  footer:
+    - "&8▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
+    - " &a%online% &7en línea    &7%ping%ms"
+    - "<#ffc83d>aldeaocultaupc.holy.gg</#ff922b>"
+    - ""
+
 # ---------- config.yml: scoreboard ----------
 scoreboard:
   enabled: true
