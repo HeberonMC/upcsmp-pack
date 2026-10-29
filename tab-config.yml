@@ -1,0 +1,41 @@
+# Fragmentos para TAB 6 (plugins/TAB). Reemplaza las secciones equivalentes, no pegues el archivo entero.
+# Insignias: prefijo de LuckPerms = rango, sufijo = team (ver salida/comandos-luckperms.txt).
+
+# ---------- groups.yml: lista de TAB y nombre sobre la cabeza ----------
+_DEFAULT_:
+  tabprefix: "%luckperms_prefix%"
+  customtabname: "&f%player%"
+  tabsuffix: "%luckperms_suffix%"
+  tagprefix: "%luckperms_prefix%"
+  tagsuffix: "%luckperms_suffix%"
+
+# ---------- config.yml: scoreboard ----------
+scoreboard:
+  enabled: true
+  toggle-command: /sb
+  remember-toggle-choice: true
+  scoreboards:
+    principal:
+      title: "<#3fd0ff>&lUPCSMP"
+      lines:
+        - "&8%date%  &7%online% en línea"
+        - ""
+        - "&7Jugador"
+        - " &f%player%"
+        - "&7Rango"
+        - " %luckperms_prefix%"
+        - "&7Team"
+        - " %condition:tiene_team%"
+        - ""
+        - "&7Asesinatos &f%statistic_player_kills%"
+        - "&7Muertes &f%statistic_deaths%"
+        - "&7Tiempo &f%statistic_hours_played%h"
+        - ""
+        - "<#ffc83d>aldeaocultaupc.holy.gg"
+
+conditions:
+  tiene_team:
+    conditions:
+      - "%luckperms_suffix%!="
+    yes: "%luckperms_suffix%"
+    no: "&8Sin team"
