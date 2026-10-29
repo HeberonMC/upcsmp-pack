@@ -1,0 +1,8 @@
+# TAB 6 - UPCSMP · by Heleon ST
+# Todo sale de LuckPerms: no agregues grupos aqui, cambia el prefijo/sufijo en LuckPerms.
+_DEFAULT_:
+  tabprefix: "%luckperms_prefix%"
+  customtabname: "&f%player%"
+  tabsuffix: "%luckperms_suffix%"
+  tagprefix: "%luckperms_prefix%"
+  tagsuffix: "%luckperms_suffix%"

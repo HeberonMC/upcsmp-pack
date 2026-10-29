@@ -1,0 +1,181 @@
+# TAB 6 - UPCSMP · by Heleon ST
+# Rango = prefijo de LuckPerms, team = sufijo de LuckPerms. Los \uEB0x son iconos del resource pack.
+
+# https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Header-&-Footer
+header-footer:
+  enabled: true
+  designs:
+    default:
+      header:
+        - ""
+        - "&l<#3fd0ff>UPCSMP</#4c6ef5>"
+        - "&7Bienvenido, &f%player%"
+        - "&8▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
+      footer:
+        - "&8▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
+        - " &a%online% &7en línea    &7%ping%ms"
+        - "<#ffc83d>aldeaocultaupc.holy.gg</#ff922b>"
+        - ""
+
+# https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Tablist-name-formatting
+tablist-name-formatting:
+  enabled: true
+  disable-condition: '%world%=disabledworld'
+
+# https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Nametags
+# Activado: pone rango y team sobre la cabeza y ordena la lista por rango.
+scoreboard-teams:
+  enabled: true
+  enable-collision: true
+  unstuck-by-teleportation: false
+  respect-invisible: true
+  invisible-nametags: false
+  # https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Sorting-players-in-tablist
+  sorting-types:
+    - "GROUPS:dios,mod,helper,builder,creador_de_contenido,vip_plus,default"
+    - "PLACEHOLDER_A_TO_Z:%player%"
+  case-sensitive-sorting: false
+  can-see-friendly-invisibles: false
+  disable-condition: '%world%=disabledworld'
+
+# https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Playerlist-Objective
+playerlist-objective:
+  enabled: true
+  value: "%ping%"
+  fancy-value: "&7%ping%ms"
+  title: "&bPing"
+  render-type: INTEGER
+  disable-condition: '%world%=disabledworld'
+
+# https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Belowname
+belowname-objective:
+  enabled: true
+  value: "%health%"
+  fancy-value: "&c%health%&4❤"
+  fancy-value-default: "NPC"
+  title: "&c"
+  disable-condition: '%world%=disabledworld'
+  view-distance: 10
+
+# https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Spectator-fix
+prevent-spectator-effect:
+  enabled: false
+
+# https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Bossbar
+bossbar:
+  enabled: false
+  toggle-command: /bossbar
+  remember-toggle-choice: false
+  hidden-by-default: false
+  bars: {}
+
+# https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Scoreboard
+scoreboard:
+  enabled: true
+  toggle-command: /sb
+  remember-toggle-choice: true
+  hidden-by-default: false
+  delay-on-join-milliseconds: 0
+  scoreboards:
+    stats:
+      title: "&l<#3fd0ff>UPCSMP</#4c6ef5>"
+      lines:
+        - "&8%date%"
+        - "&8▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
+        - " &f%player%"
+        - " %luckperms_prefix%"
+        - " %condition:tiene_team%"
+        - ""
+        - "&#7c8a9e&lESTADÍSTICAS"
+        - " &7Asesinatos &a%statistic_player_kills%"
+        - " &7Muertes &c%statistic_deaths%"
+        - " &7Tiempo &b%statistic_hours_played%h"
+        - ""
+        - " &a%online% &7en línea   &7%ping%ms"
+        - "&8▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
+        - "<#ffc83d>aldeaocultaupc.holy.gg</#ff922b>"
+
+# https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Layout
+layout:
+  enabled: false
+
+# https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Ping-Spoof
+ping-spoof:
+  enabled: false
+  value: 0
+
+placeholders:
+  date-format: "dd.MM.yyyy"
+  time-format: "[HH:mm:ss / h:mm a]"
+  time-offset: -5
+  register-tab-expansion: true
+  locale: es-ES
+
+# https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Placeholder-output-replacements
+placeholder-output-replacements:
+  "%essentials_vanished%":
+    "yes": "&7| Vanished"
+    "no": ""
+
+# https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Conditional-placeholders
+conditions:
+  tiene_team:
+    conditions:
+      - "%luckperms_suffix%!="
+    true: "%luckperms_suffix%"
+    false: "&8Sin team"
+  nick: # use it with %condition:nick%
+    conditions:
+      - "%player%=%essentials_nickname%"
+    true: "%player%"
+    false: "~%essentials_nickname%"
+
+placeholder-refresh-intervals:
+  default-refresh-interval: 500
+  "%server_uptime%": 1000
+  "%server_tps_1_colored%": 1000
+  "%server_unique_joins%": 5000
+  "%player_health%": 200
+  "%player_ping%": 1000
+  "%vault_prefix%": 1000
+
+assign-groups-by-permissions: false
+primary-group-finding-list:
+  - dios
+  - mod
+  - helper
+  - builder
+  - creador_de_contenido
+  - vip_plus
+  - default
+
+permission-refresh-interval: 1000
+debug: false
+
+mysql:
+  enabled: false
+  host: 127.0.0.1
+  port: 3306
+  database: tab
+  username: user
+  password: password
+  useSSL: true
+
+# Un solo server, sin proxy.
+proxy-support:
+  enabled: false
+
+components:
+  minimessage-support: true
+  disable-shadow-for-heads: true
+
+# Internal value, do not change this
+config-version: 7
+
+per-world-playerlist:
+  enabled: false
+  allow-bypass-permission: false
+  ignore-effect-in-worlds: []
+  shared-playerlist-world-groups: {}
+
+compensate-for-packetevents-bug: false
