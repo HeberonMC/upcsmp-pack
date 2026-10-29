@@ -35,9 +35,11 @@ scoreboard:
         - "&8▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬"
         - "<#ffc83d>aldeaocultaupc.holy.gg</#ff922b>"
 
+# Va en config.yml SIN sangria (al nivel de scoreboard:). Si ya existe un "conditions:",
+# agrega solo tiene_team dentro del que ya tienes: dos "conditions:" rompen el archivo.
 conditions:
   tiene_team:
     conditions:
       - "%luckperms_suffix%!="
-    yes: "%luckperms_suffix%"
-    no: "&8Sin team"
+    true: "%luckperms_suffix%"
+    false: "&8Sin team"
