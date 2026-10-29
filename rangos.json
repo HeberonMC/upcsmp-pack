@@ -12,7 +12,7 @@
     { "id": "lasfark",          "texto": "LASFARK",      "color": "#9b1f2b", "char": "EA40", "tipo": "team", "imagen": "logos/lasfark.png", "char_icono": "EA80", "solo_icono": true,
       "miembros": ["iD4viid", "OrtegaGR", "Vik0xs", "ZPortal_", "xPapiPogox"] },
     { "id": "xnxx",             "texto": "XNXX",         "color": "#e8731a", "char": "EA44", "tipo": "team" },
-    { "id": "cpp_lovers",       "texto": "C++ LOVERS",   "color": "#9c36b5", "char": "EA45", "tipo": "team",
+    { "id": "cpp_lovers",       "texto": "C++ LOVERS",   "color": "#9c36b5", "char": "EA45", "tipo": "team", "imagen": "logos/cpp_lovers.png", "char_icono": "EA81", "solo_icono": true,
       "miembros": ["Andruuu", "JamesPerez"] },
     { "id": "los_tres_piernas", "texto": "LTP",          "color": "#e9ecef", "char": "EA46", "tipo": "team",
       "miembros": ["KiwisitoUwU14", "alcatel", "KiwisiUwU14"] },

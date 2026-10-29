@@ -170,7 +170,9 @@ def cargar_icono(ruta, alto=ICONO_ALTO):
     """Logo con fondo blanco -> transparente, recortado y escalado a alta resolucion."""
     img = Image.open(ruta).convert("RGBA")
     px = img.load()
-    for y in range(img.height):
+    # Si el PNG ya trae transparencia, el blanco es parte del logo (letras, brillos): no se toca.
+    ya_transparente = img.getextrema()[3][0] < 255
+    for y in range(img.height if not ya_transparente else 0):
         for x in range(img.width):
             r, g, b, a = px[x, y]
             # Cuanto mas blanco, mas transparente; el borde suavizado se "desmezcla" del blanco.
