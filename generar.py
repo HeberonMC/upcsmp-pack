@@ -22,7 +22,8 @@ AQUI = Path(__file__).resolve().parent
 SALIDA = AQUI / "salida"
 TEXTURAS = "heleon/rangos"          # assets/minecraft/textures/heleon/rangos/
 FIRMA = " §8· by Heleon ST"
-ICONO_ALTO = 36                     # px reales; en el juego mide 9, como las insignias
+ITEMS_NS = "heleon"                 # assets/heleon/ para items custom
+ICONO_ALTO = 36                    # px reales; en el juego mide 9, como las insignias
 
 # Fuente de 5 filas. Cada letra es una lista de filas; '#' = pixel.
 LETRAS = {
@@ -188,6 +189,37 @@ def cargar_icono(ruta, alto=ICONO_ALTO, quitar_fondo=True):
     return img.resize((ancho, alto), Image.LANCZOS)
 
 
+def agregar_items(destino):
+    """Items custom de items.json: textura + modelo (1.21.4+) y su comando /give."""
+    ruta = AQUI / "items.json"
+    if not ruta.exists():
+        return []
+    items = json.loads(ruta.read_text(encoding="utf-8"))["items"]
+    assets = destino / "assets" / ITEMS_NS
+    for sub in ("items", "models/item", "textures/item"):
+        carpeta = assets / sub
+        if carpeta.exists():
+            shutil.rmtree(carpeta)
+        carpeta.mkdir(parents=True)
+    comandos = []
+    for it in items:
+        iid = it["id"]
+        textura = Image.open(AQUI / it["textura"])
+        if textura.size != (16, 16):
+            print(f"Aviso: la textura de {iid} mide {textura.size}, lo normal es 16x16")
+        shutil.copyfile(AQUI / it["textura"], assets / "textures/item" / f"{iid}.png")
+        (assets / "models/item" / f"{iid}.json").write_text(json.dumps({
+            "parent": "minecraft:item/generated",
+            "textures": {"layer0": f"{ITEMS_NS}:item/{iid}"},
+        }, indent=2), encoding="utf-8")
+        (assets / "items" / f"{iid}.json").write_text(json.dumps({
+            "model": {"type": "minecraft:model", "model": f"{ITEMS_NS}:item/{iid}"},
+        }, indent=2), encoding="utf-8")
+        componentes = [f'item_model="{ITEMS_NS}:{iid}"'] + it.get("componentes", [])
+        comandos.append(f"give @p {it['base']}[{','.join(componentes)}] 1")
+    return comandos
+
+
 def main():
     if len(sys.argv) != 2:
         raise SystemExit(__doc__)
@@ -267,6 +299,8 @@ def main():
         })
         iconos.append(img)
 
+    comandos_items = agregar_items(destino)
+
     fuente_path.parent.mkdir(parents=True, exist_ok=True)
     fuente_path.write_text(json.dumps(fuente, ensure_ascii=True, indent=2), encoding="utf-8")
 
@@ -315,6 +349,8 @@ def main():
                 lineas.append(f'lp user {jugador} parent add {ins["id"]}')
         lineas.append("")
     (SALIDA / "comandos-luckperms.txt").write_text("\n".join(lineas) + "\n", encoding="utf-8")
+
+    (SALIDA / "comandos-items.txt").write_text("\n".join(comandos_items) + "\n", encoding="utf-8")
 
     print(f"Pack: {zip_path}")
     print(f"SHA1: {sha1}")
