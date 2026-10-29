@@ -1,5 +1,5 @@
 {
-  "_ayuda": "id = nombre del grupo en LuckPerms. texto: A-Z, 0-9, +, -, espacio. No cambies el char de una insignia que ya uses. Logo opcional: imagen (PNG con fondo blanco o transparente) + char_icono; con solo_icono: true se muestra solo el logo, sin la insignia de texto. prioridad: el prefijo mas alto gana si alguien tiene varios rangos. antes: texto que va delante de la insignia (con codigos &).",
+  "_ayuda": "id = nombre del grupo en LuckPerms. texto: A-Z, 0-9, +, -, espacio. No cambies el char de una insignia que ya uses. Logo opcional: imagen (PNG con fondo blanco o transparente) + char_icono; con solo_icono: true se muestra solo el logo, sin la insignia de texto. prioridad: el prefijo mas alto gana si alguien tiene varios rangos. antes: texto que va delante de la insignia (con codigos &). miembros (teams): jugadores que se agregan al grupo con parent add, sin quitarles su rango.",
   "insignias": [
     { "id": "dios",                 "texto": "DIOS",      "color": "#e0a400", "char": "EA00", "tipo": "rango", "prioridad": 100 },
     { "id": "mod",                  "texto": "MOD",       "color": "#2f6bff", "char": "EA01", "tipo": "rango", "prioridad": 90, "antes": "&9★★★ " },
@@ -9,7 +9,16 @@
     { "id": "vip_plus",             "texto": "VIP+",      "color": "#8a3ffc", "char": "EA05", "tipo": "rango", "prioridad": 50 },
     { "id": "default",              "texto": "USER",      "color": "#6b7280", "char": "EA06", "tipo": "rango", "prioridad": 10 },
 
-    { "id": "lasfark",        "texto": "LASFARK",   "color": "#9b1f2b", "char": "EA40", "tipo": "team", "imagen": "logos/lasfark.png", "char_icono": "EA80", "solo_icono": true },
-    { "id": "xnxx",           "texto": "XNXX",      "color": "#e8731a", "char": "EA44", "tipo": "team" }
+    { "id": "lasfark",          "texto": "LASFARK",      "color": "#9b1f2b", "char": "EA40", "tipo": "team", "imagen": "logos/lasfark.png", "char_icono": "EA80", "solo_icono": true,
+      "miembros": ["iD4viid", "OrtegaGR", "Vik0xs", "ZPortal_", "xPapiPogox"] },
+    { "id": "xnxx",             "texto": "XNXX",         "color": "#e8731a", "char": "EA44", "tipo": "team" },
+    { "id": "cpp_lovers",       "texto": "C++ LOVERS",   "color": "#9c36b5", "char": "EA45", "tipo": "team",
+      "miembros": ["Andruuu", "JamesPerez"] },
+    { "id": "los_tres_piernas", "texto": "LTP",          "color": "#e9ecef", "char": "EA46", "tipo": "team",
+      "miembros": ["alcatel", "KiwisiUwU14"] },
+    { "id": "soul_society",     "texto": "SOUL SOCIETY", "color": "#1c7ed6", "char": "EA47", "tipo": "team",
+      "miembros": ["Julian_7v7", "Patrick_juan", "Estaradero1"] },
+    { "id": "los_mondacones",   "texto": "LM",           "color": "#2b2b30", "char": "EA48", "tipo": "team",
+      "miembros": ["Jhonaah", "M0ndaco", "DavidM", "Walalow", "chwilson"] }
   ]
 }

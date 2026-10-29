@@ -128,6 +128,14 @@ def dibujar(texto, color):
     borde = mezclar(base, (0, 0, 0), 0.45)
     brillo = mezclar(base, (255, 255, 255), 0.25)
     sombra = mezclar(base, (0, 0, 0), 0.35)
+    # En fondos claros (blanco, amarillo) el texto blanco no se lee: se usa oscuro.
+    claro = 0.299 * base[0] + 0.587 * base[1] + 0.114 * base[2] > 170
+    letra = (33, 37, 41, 255) if claro else (255, 255, 255, 255)
+    if claro:
+        sombra = mezclar(base, (0, 0, 0), 0.15)
+    # En fondos casi negros el borde oscuro se pierde con el chat: se aclara.
+    if 0.299 * base[0] + 0.587 * base[1] + 0.114 * base[2] < 60:
+        borde = mezclar(base, (255, 255, 255), 0.35)
 
     img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
     px = img.load()
@@ -153,7 +161,7 @@ def dibujar(texto, color):
         for fy, fila in enumerate(filas):
             for fx, c in enumerate(fila):
                 if c == "#":
-                    px[x0 + fx, 2 + fy] = (255, 255, 255, 255)
+                    px[x0 + fx, 2 + fy] = letra
         x0 += len(filas[0]) + 1
     return img
 
@@ -296,8 +304,13 @@ def main():
             lineas.append(f'lp group {ins["id"]} meta clear prefix')
             lineas.append(f'lp group {ins["id"]} meta setprefix {prio} "{ch} "')
         else:
+            # creategroup no hace nada si el grupo ya existe.
+            lineas.append(f'lp creategroup {ins["id"]}')
             lineas.append(f'lp group {ins["id"]} meta clear suffix')
             lineas.append(f'lp group {ins["id"]} meta setsuffix {prio} " {ch}"')
+            for jugador in ins.get("miembros", []):
+                lineas.append(f'lp user {jugador} parent add {ins["id"]}')
+        lineas.append("")
     (SALIDA / "comandos-luckperms.txt").write_text("\n".join(lineas) + "\n", encoding="utf-8")
 
     print(f"Pack: {zip_path}")
