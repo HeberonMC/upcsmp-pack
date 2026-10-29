@@ -166,13 +166,14 @@ def dibujar(texto, color):
     return img
 
 
-def cargar_icono(ruta, alto=ICONO_ALTO):
+def cargar_icono(ruta, alto=ICONO_ALTO, quitar_fondo=True):
     """Logo con fondo blanco -> transparente, recortado y escalado a alta resolucion."""
     img = Image.open(ruta).convert("RGBA")
     px = img.load()
     # Si el PNG ya trae transparencia, el blanco es parte del logo (letras, brillos): no se toca.
+    # Con quitar_fondo: false se deja tal cual (logos que ya son una placa con su fondo).
     ya_transparente = img.getextrema()[3][0] < 255
-    for y in range(img.height if not ya_transparente else 0):
+    for y in range(img.height if quitar_fondo and not ya_transparente else 0):
         for x in range(img.width):
             r, g, b, a = px[x, y]
             # Cuanto mas blanco, mas transparente; el borde suavizado se "desmezcla" del blanco.
@@ -239,7 +240,7 @@ def main():
             ch_ico = chr(int(ins["char_icono"], 16))
             if ch_ico in usados:
                 raise SystemExit(f"El char_icono {ins['char_icono']} de '{ins['id']}' ya lo usa el pack")
-            icono = cargar_icono(AQUI / ins["imagen"])
+            icono = cargar_icono(AQUI / ins["imagen"], quitar_fondo=ins.get("quitar_fondo", True))
             icono.save(carpeta / f"{ins['id']}-logo.png")
             fuente["providers"].append({
                 "type": "bitmap",
