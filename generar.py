@@ -227,6 +227,9 @@ def main():
         ch = "" if ins.get("solo_icono") else chr(int(ins["char"], 16))
         if "imagen" in ins:
             ch = chr(int(ins["char_icono"], 16)) + ch
+        # Los & van antes de la insignia; &r evita que el color tina el nombre.
+        if ins.get("antes"):
+            ch = ins["antes"] + "&r" + ch
         prio = ins.get("prioridad", 100 if ins["tipo"] == "rango" else 10)
         # Primero se borra el prefijo/sufijo viejo para que no gane uno anterior con mas prioridad.
         if ins["tipo"] == "rango":
