@@ -68,6 +68,45 @@ LETRAS = {
 }
 
 
+# Iconos de 8x8 para el scoreboard (alto 8 = igual que el texto). char, colores, dibujo.
+ICONOS = {
+    "jugador": ("EB00", {"b": "#5a3a1e", "s": "#e8b48a", "k": "#3b5bdb", "m": "#a0684a"}, [
+        ".bbbbbb.", "bbbbbbbb", "bssssssb", "skksskks",
+        "ssssssss", "sssmmsss", ".ssssss.", "........"]),
+    "team": ("EB01", {"g": "#9ca3af", "r": "#e03131", "d": "#a51d1d"}, [
+        "grrrrrr.", "grrrrrrr", "grrddrrr", "grrrrrr.",
+        "g.......", "g.......", "g.......", "g......."]),
+    "rango": ("EB02", {"y": "#ffd43b", "o": "#f08c00"}, [
+        "...yy...", "...yy...", "yyyyyyyy", ".yyyyyy.",
+        "..yyyy..", ".yyooyy.", ".yo..oy.", "o......o"]),
+    "espada": ("EB03", {"s": "#adb5bd", "w": "#f1f3f5", "y": "#f59f00", "b": "#7c4a1e"}, [
+        "......ss", ".....sws", "....sws.", "y..sws..",
+        ".yysws..", "..yy....", ".byyy...", "bb......"]),
+    "calavera": ("EB04", {"w": "#f1f3f5", "k": "#212529", "g": "#adb5bd"}, [
+        ".wwwwww.", "wwwwwwww", "wkkwwkkw", "wkkwwkkw",
+        "wwwkkwww", ".wwwwww.", "..wgwg..", "..wwww.."]),
+    "reloj": ("EB05", {"y": "#4dabf7", "w": "#f1f3f5", "k": "#212529"}, [
+        "..yyyy..", ".ywwwwy.", "ywwkwwwy", "ywwkwwwy",
+        "ywwkkkwy", "ywwwwwwy", ".ywwwwy.", "..yyyy.."]),
+    "online": ("EB06", {"g": "#2f9e44", "G": "#69db7c"}, [
+        "........", "..gggg..", ".gGGGGg.", ".gGGGGg.",
+        ".gGGGGg.", ".gGGGGg.", "..gggg..", "........"]),
+    "ping": ("EB07", {"G": "#69db7c"}, [
+        "......G.", "......G.", "....G.G.", "....G.G.",
+        "..G.G.G.", "..G.G.G.", "G.G.G.G.", "G.G.G.G."]),
+}
+
+
+def dibujar_icono(colores, filas):
+    img = Image.new("RGBA", (len(filas[0]), len(filas)), (0, 0, 0, 0))
+    px = img.load()
+    for y, fila in enumerate(filas):
+        for x, c in enumerate(fila):
+            if c != ".":
+                px[x, y] = hex_rgb(colores[c]) + (255,)
+    return img
+
+
 def hex_rgb(h):
     h = h.lstrip("#")
     return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
@@ -201,6 +240,22 @@ def main():
             })
         previas.append((ins, img, icono))
 
+    iconos = []
+    for nombre, (cp, colores, filas) in ICONOS.items():
+        ch = chr(int(cp, 16))
+        if ch in usados or cp in chars:
+            raise SystemExit(f"El char {cp} del icono '{nombre}' ya esta en uso")
+        img = dibujar_icono(colores, filas)
+        img.save(carpeta / f"icono-{nombre}.png")
+        fuente["providers"].append({
+            "type": "bitmap",
+            "file": f"minecraft:{TEXTURAS}/icono-{nombre}.png",
+            "ascent": 7,
+            "height": 8,
+            "chars": [ch],
+        })
+        iconos.append(img)
+
     fuente_path.parent.mkdir(parents=True, exist_ok=True)
     fuente_path.write_text(json.dumps(fuente, ensure_ascii=True, indent=2), encoding="utf-8")
 
@@ -220,6 +275,7 @@ def main():
     (SALIDA / "sha1.txt").write_text(sha1 + "\n", encoding="utf-8")
 
     vista_previa(previas, SALIDA / "vista-previa.png")
+    vista_previa([(None, i, None) for i in iconos], SALIDA / "vista-iconos.png")
 
     # LuckPerms no entiende \uXXXX: los comandos llevan el caracter real, para copiar y pegar.
     lineas = []
