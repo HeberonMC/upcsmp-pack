@@ -117,26 +117,30 @@ def contador():
             'bossbar add heleon:contador ""',
             "$bossbar set heleon:contador max $(segundos)",
             "bossbar set heleon:contador style progress",
+            "# Blanca: el resource pack la deja invisible y solo se ve el texto",
+            "bossbar set heleon:contador color white",
             "bossbar set heleon:contador visible true",
             "title @a times 0 25 5",
             "function heleon:contador/tick",
         ]) + "\n",
         f + "tick.mcfunction": "\n".join([
-            "# Bossbar: se vacia y pasa de verde a amarillo a rojo",
+            "# Texto de la bossbar (sin barra): el tiempo pasa de verde a amarillo a rojo",
             "bossbar set heleon:contador players @a",
             f"execute store result bossbar heleon:contador value run scoreboard players get #n {sc}",
             f"scoreboard players operation #pct {sc} = #n {sc}",
             f"scoreboard players operation #pct {sc} *= #100 {sc}",
             f"scoreboard players operation #pct {sc} /= #total {sc}",
-            f"execute if score #pct {sc} matches 51.. run bossbar set heleon:contador color green",
-            f"execute if score #pct {sc} matches 21..50 run bossbar set heleon:contador color yellow",
-            f"execute if score #pct {sc} matches ..20 run bossbar set heleon:contador color red",
             f"scoreboard players operation #min {sc} = #n {sc}",
             f"scoreboard players operation #min {sc} /= #60 {sc}",
             f"scoreboard players operation #seg {sc} = #n {sc}",
             f"scoreboard players operation #seg {sc} %= #60 {sc}",
-            f'execute if score #seg {sc} matches 10.. run bossbar set heleon:contador name [{{"text":"{RELOJ} ","color":"white"}},{{"text":"Tiempo  ","color":"gray"}},{obj("#min", "white")},{{"text":":","color":"white","bold":true}},{obj("#seg", "white")}]',
-            f'execute if score #seg {sc} matches ..9 run bossbar set heleon:contador name [{{"text":"{RELOJ} ","color":"white"}},{{"text":"Tiempo  ","color":"gray"}},{obj("#min", "white")},{{"text":":0","color":"white","bold":true}},{obj("#seg", "white")}]',
+        ] + [
+            f'execute if score #pct {sc} matches {rango} if score #seg {sc} matches {segs} run bossbar set heleon:contador name '
+            f'[{{"text":"{RELOJ} ","color":"white"}},{{"text":"Tiempo  ","color":"gray"}},{obj("#min", color)},'
+            f'{{"text":"{sep}","color":"{color}","bold":true}},{obj("#seg", color)}]'
+            for rango, color in (("51..", "green"), ("21..50", "yellow"), ("..20", "red"))
+            for segs, sep in (("10..", ":"), ("..9", ":0"))
+        ] + [
             f"execute if score #n {sc} matches 11.. if score #seg {sc} matches 0 as @a at @s run playsound minecraft:block.note_block.hat master @s ~ ~ ~ 1 1",
             "# Ultimos 10 s: numeros grandes del pack y un pling que sube de tono",
         ] + [
@@ -152,7 +156,6 @@ def contador():
         ]) + "\n",
         f + "fin.mcfunction": "\n".join([
             "bossbar set heleon:contador value 0",
-            "bossbar set heleon:contador color red",
             'bossbar set heleon:contador name {"nbt":"final","storage":"heleon:contador","color":"red","bold":true}',
             "title @a times 0 40 10",
             'title @a title {"nbt":"final","storage":"heleon:contador","color":"dark_red","bold":true}',

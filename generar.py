@@ -558,6 +558,12 @@ def main():
 
     comandos_items = agregar_items(destino)
     agregar_anuncio(destino)
+    # Bossbar blanca invisible: el contador la usa para mostrar solo el texto, sin barra.
+    # Las demas colores (las de otros plugins) siguen normales.
+    sprites = destino / "assets/minecraft/textures/gui/sprites/boss_bar"
+    sprites.mkdir(parents=True, exist_ok=True)
+    for nombre in ("white_background", "white_progress"):
+        Image.new("RGBA", (182, 5), (0, 0, 0, 0)).save(sprites / f"{nombre}.png")
 
     fuente_path.parent.mkdir(parents=True, exist_ok=True)
     fuente_path.write_text(json.dumps(fuente, ensure_ascii=True, indent=2), encoding="utf-8")
