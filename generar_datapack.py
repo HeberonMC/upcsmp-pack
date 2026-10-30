@@ -20,6 +20,9 @@ AQUI = Path(__file__).resolve().parent
 SALIDA = AQUI / "salida"
 NS = "heleon"
 FECHA = (2024, 1, 1, 0, 0, 0)
+# Glifos del resource pack (generar.py): numeros grandes 1-10 y el icono de reloj.
+NUMERO_BASE = 0xEC00
+RELOJ = ""
 
 ANIMACIONES = {
     # nombre de la animacion -> (regex sobre el archivo del glifo, sonido)
@@ -85,9 +88,11 @@ def funciones(cuadros):
 
 
 def contador():
-    """Cuenta regresiva configurable: mas de 10 s en el actionbar (m:ss), los ultimos 10 en grande."""
+    """Cuenta regresiva configurable: bossbar con m:ss que se vacia y los ultimos 10 s con numeros grandes."""
     sc = "heleon_contador"
-    obj = lambda nombre: f'{{"score":{{"name":"{nombre}","objective":"{sc}"}}}}'
+    def obj(nombre, color=None):
+        estilo = f',"color":"{color}","bold":true' if color else ""
+        return f'{{"score":{{"name":"{nombre}","objective":"{sc}"}}{estilo}}}'
     f = f"data/{NS}/function/contador/"
     return {
         f + "iniciar.mcfunction": "\n".join([
@@ -104,38 +109,64 @@ def contador():
             f"scoreboard objectives add {sc} dummy",
             "schedule clear heleon:contador/tick",
             "schedule clear heleon:contador/fin",
+            "schedule clear heleon:contador/ocultar",
             f"$scoreboard players set #n {sc} $(segundos)",
+            f"$scoreboard players set #total {sc} $(segundos)",
             f"scoreboard players set #60 {sc} 60",
+            f"scoreboard players set #100 {sc} 100",
+            'bossbar add heleon:contador ""',
+            "$bossbar set heleon:contador max $(segundos)",
+            "bossbar set heleon:contador style progress",
+            "bossbar set heleon:contador visible true",
             "title @a times 0 25 5",
             "function heleon:contador/tick",
         ]) + "\n",
         f + "tick.mcfunction": "\n".join([
-            "# Mas de 10 s: actionbar con minutos:segundos",
+            "# Bossbar: se vacia y pasa de verde a amarillo a rojo",
+            "bossbar set heleon:contador players @a",
+            f"execute store result bossbar heleon:contador value run scoreboard players get #n {sc}",
+            f"scoreboard players operation #pct {sc} = #n {sc}",
+            f"scoreboard players operation #pct {sc} *= #100 {sc}",
+            f"scoreboard players operation #pct {sc} /= #total {sc}",
+            f"execute if score #pct {sc} matches 51.. run bossbar set heleon:contador color green",
+            f"execute if score #pct {sc} matches 21..50 run bossbar set heleon:contador color yellow",
+            f"execute if score #pct {sc} matches ..20 run bossbar set heleon:contador color red",
             f"scoreboard players operation #min {sc} = #n {sc}",
             f"scoreboard players operation #min {sc} /= #60 {sc}",
             f"scoreboard players operation #seg {sc} = #n {sc}",
             f"scoreboard players operation #seg {sc} %= #60 {sc}",
-            f'execute if score #n {sc} matches 11.. if score #seg {sc} matches 10.. run title @a actionbar [{{"text":"Tiempo ","color":"yellow"}},{obj("#min")},{{"text":":"}},{obj("#seg")}]',
-            f'execute if score #n {sc} matches 11.. if score #seg {sc} matches ..9 run title @a actionbar [{{"text":"Tiempo ","color":"yellow"}},{obj("#min")},{{"text":":0"}},{obj("#seg")}]',
+            f'execute if score #seg {sc} matches 10.. run bossbar set heleon:contador name [{{"text":"{RELOJ} ","color":"white"}},{{"text":"Tiempo  ","color":"gray"}},{obj("#min", "white")},{{"text":":","color":"white","bold":true}},{obj("#seg", "white")}]',
+            f'execute if score #seg {sc} matches ..9 run bossbar set heleon:contador name [{{"text":"{RELOJ} ","color":"white"}},{{"text":"Tiempo  ","color":"gray"}},{obj("#min", "white")},{{"text":":0","color":"white","bold":true}},{obj("#seg", "white")}]',
             f"execute if score #n {sc} matches 11.. if score #seg {sc} matches 0 as @a at @s run playsound minecraft:block.note_block.hat master @s ~ ~ ~ 1 1",
-            "# Ultimos 10 s: numero grande con sonido",
-            f'execute if score #n {sc} matches 6..10 run title @a title {{"score":{{"name":"#n","objective":"{sc}"}},"color":"gold","bold":true}}',
-            f'execute if score #n {sc} matches ..5 run title @a title {{"score":{{"name":"#n","objective":"{sc}"}},"color":"red","bold":true}}',
-            f"execute if score #n {sc} matches ..10 as @a at @s run playsound minecraft:block.note_block.pling master @s ~ ~ ~ 1 1",
+            "# Ultimos 10 s: numeros grandes del pack y un pling que sube de tono",
+        ] + [
+            f"execute if score #n {sc} matches {n} run title @a title {json.dumps(chr(NUMERO_BASE + n), ensure_ascii=False)}"
+            for n in range(10, 0, -1)
+        ] + [
+            f"execute if score #n {sc} matches {n} as @a at @s run playsound minecraft:block.note_block.pling master @s ~ ~ ~ 1 {0.7 + (10 - n) * 0.13:.2f}"
+            for n in range(10, 0, -1)
+        ] + [
             f"scoreboard players remove #n {sc} 1",
             f"execute if score #n {sc} matches 1.. run schedule function heleon:contador/tick 1s",
             f"execute if score #n {sc} matches ..0 run schedule function heleon:contador/fin 1s",
         ]) + "\n",
         f + "fin.mcfunction": "\n".join([
+            "bossbar set heleon:contador value 0",
+            "bossbar set heleon:contador color red",
+            'bossbar set heleon:contador name {"nbt":"final","storage":"heleon:contador","color":"red","bold":true}',
             "title @a times 0 40 10",
             'title @a title {"nbt":"final","storage":"heleon:contador","color":"dark_red","bold":true}',
             "execute as @a at @s run playsound minecraft:entity.ender_dragon.growl master @s ~ ~ ~ 1 1",
+            "execute as @a at @s run playsound minecraft:entity.firework_rocket.large_blast master @s ~ ~ ~ 1 1",
+            "schedule function heleon:contador/ocultar 3s",
         ]) + "\n",
+        f + "ocultar.mcfunction": "bossbar remove heleon:contador\n",
         f + "parar.mcfunction": "\n".join([
             "schedule clear heleon:contador/tick",
             "schedule clear heleon:contador/fin",
+            "schedule clear heleon:contador/ocultar",
+            "bossbar remove heleon:contador",
             "title @a clear",
-            'title @a actionbar ""',
         ]) + "\n",
     }
 

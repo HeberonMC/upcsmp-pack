@@ -109,6 +109,51 @@ def dibujar_icono(colores, filas):
     return img
 
 
+# Numeros grandes del contador (1-10) en U+EC01..U+EC0A: dorados del 10 al 6, rojos del 5 al 1.
+NUMERO_BASE = 0xEC00
+DIGITOS = {
+    "0": [".###.", "#...#", "#..##", "#.#.#", "##..#", "#...#", ".###."],
+    "1": ["..#..", ".##..", "..#..", "..#..", "..#..", "..#..", ".###."],
+    "2": [".###.", "#...#", "....#", "...#.", "..#..", ".#...", "#####"],
+    "3": ["####.", "....#", "....#", ".###.", "....#", "....#", "####."],
+    "4": ["...#.", "..##.", ".#.#.", "#..#.", "#####", "...#.", "...#."],
+    "5": ["#####", "#....", "####.", "....#", "....#", "#...#", ".###."],
+    "6": [".###.", "#....", "#....", "####.", "#...#", "#...#", ".###."],
+    "7": ["#####", "....#", "...#.", "..#..", ".#...", ".#...", ".#..."],
+    "8": [".###.", "#...#", "#...#", ".###.", "#...#", "#...#", ".###."],
+    "9": [".###.", "#...#", "#...#", ".####", "....#", "....#", ".###."],
+}
+
+
+def dibujar_numero(n):
+    """Digitos 5x7 al doble, con degradado vertical, brillo arriba y borde oscuro."""
+    if n > 5:
+        arriba, abajo, borde = hex_rgb("#fff3a0"), hex_rgb("#f08c00"), hex_rgb("#4a2c00")
+    else:
+        arriba, abajo, borde = hex_rgb("#ffb3a8"), hex_rgb("#d61f1f"), hex_rgb("#3d0000")
+    filas = DIGITOS[str(n)] if n < 10 else [DIGITOS["1"][y] + "." + DIGITOS["0"][y] for y in range(7)]
+    esc = 2
+    w, h = len(filas[0]) * esc + 2, len(filas) * esc + 2
+    lleno = {(1 + x * esc + dx, 1 + y * esc + dy)
+             for y, fila in enumerate(filas) for x, c in enumerate(fila) if c == "#"
+             for dx in range(esc) for dy in range(esc)}
+    img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    px = img.load()
+    for (x, y) in lleno:
+        t = (y - 1) / max(1, h - 3)
+        color = mezclar(arriba, abajo, t)
+        if (x, y - 1) not in lleno:
+            color = mezclar(color, (255, 255, 255), 0.5)
+        px[x, y] = color + (255,)
+    for y in range(h):
+        for x in range(w):
+            if (x, y) in lleno:
+                continue
+            if any((x + dx, y + dy) in lleno for dx in (-1, 0, 1) for dy in (-1, 0, 1)):
+                px[x, y] = borde + (255,)
+    return img
+
+
 def hex_rgb(h):
     h = h.lstrip("#")
     return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
@@ -300,6 +345,22 @@ def main():
         })
         iconos.append(img)
 
+    numeros = []
+    for n in range(1, 11):
+        ch = chr(NUMERO_BASE + n)
+        if ch in usados:
+            raise SystemExit(f"El char {NUMERO_BASE + n:X} del numero {n} ya esta en uso")
+        img = dibujar_numero(n)
+        img.save(carpeta / f"numero-{n}.png")
+        fuente["providers"].append({
+            "type": "bitmap",
+            "file": f"minecraft:{TEXTURAS}/numero-{n}.png",
+            "ascent": 10,
+            "height": 20,
+            "chars": [ch],
+        })
+        numeros.append(img)
+
     comandos_items = agregar_items(destino)
 
     fuente_path.parent.mkdir(parents=True, exist_ok=True)
@@ -326,6 +387,12 @@ def main():
 
     vista_previa(previas, SALIDA / "vista-previa.png")
     vista_previa([(None, i, None) for i in iconos], SALIDA / "vista-iconos.png")
+    fila = Image.new("RGBA", (sum(i.width + 2 for i in numeros) + 4, numeros[0].height + 4), (24, 24, 28, 255))
+    x = 2
+    for img in reversed(numeros):
+        fila.alpha_composite(img, (x, 2))
+        x += img.width + 2
+    fila.resize((fila.width * 6, fila.height * 6), Image.NEAREST).save(SALIDA / "vista-numeros.png")
 
     # LuckPerms no entiende \uXXXX: los comandos llevan el caracter real, para copiar y pegar.
     lineas = []
