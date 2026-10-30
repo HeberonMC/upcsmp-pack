@@ -154,6 +154,137 @@ def dibujar_numero(n):
     return img
 
 
+# Banner del anuncio (fuente propia heleon:anuncio, no toca minecraft:default).
+# 256x32 px a altura 16 -> 128 unidades de ancho; en /title (escala x4) mide 512x64 px de GUI.
+BANNER_W, BANNER_H = 256, 32
+BANNER_ALTO = 16
+BANNER_ASCENT = 1                   # baja el banner para que el subtitulo quede en su centro
+APERTURA = [0.12, 0.28, 0.46, 0.64, 0.82, 1.0]
+BRILLO_CUADROS = 12
+
+
+def dibujar_banner(ancho, logo=None, brillo=None):
+    """Panel azul con borde dorado y celeste, remaches y el logo; brillo = posicion del reflejo."""
+    w, h = max(12, ancho), BANNER_H
+    img = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    px = img.load()
+    contorno, oro, oro_osc, celeste = hex_rgb("#050b18"), hex_rgb("#f5c542"), hex_rgb("#a8740f"), hex_rgb("#3fa9ff")
+    arriba, abajo = hex_rgb("#163a72"), hex_rgb("#08142e")
+
+    def dentro(x, y, m):
+        # rectangulo con esquinas cortadas en diagonal (estilo pixel)
+        c = 4 - m if m < 4 else 0
+        if x < m or y < m or x >= w - m or y >= h - m:
+            return False
+        dx = min(x - m, w - 1 - m - x)
+        dy = min(y - m, h - 1 - m - y)
+        return dx + dy >= c
+
+    for y in range(h):
+        for x in range(w):
+            if not dentro(x, y, 0):
+                continue
+            if not dentro(x, y, 1):
+                px[x, y] = contorno + (255,)
+            elif not dentro(x, y, 2):
+                px[x, y] = (oro if y < h // 2 else oro_osc) + (255,)
+            elif not dentro(x, y, 3):
+                px[x, y] = celeste + (255,)
+            else:
+                c = mezclar(arriba, abajo, (y - 3) / (h - 7))
+                if y == 3:
+                    c = mezclar(c, (255, 255, 255), 0.18)
+                px[x, y] = c + (255,)
+
+    # Lineas doradas finas arriba y abajo, y remaches en las esquinas
+    for x in range(8, w - 8):
+        if (x // 2) % 2 == 0:
+            px[x, 5] = mezclar(oro, arriba, 0.55) + (255,)
+            px[x, h - 6] = mezclar(oro, abajo, 0.55) + (255,)
+    for cx, cy in ((5, 5), (w - 6, 5), (5, h - 6), (w - 6, h - 6)):
+        for dx, dy in ((0, 0), (1, 0), (0, 1), (1, 1)):
+            if 0 <= cx + dx - (dx and cx > w // 2) < w:
+                px[cx + dx - (1 if cx > w // 2 else 0), cy + dy - (1 if cy > h // 2 else 0)] = oro + (255,)
+
+    if ancho >= BANNER_W * 0.8:
+        # Insignia redonda con el logo a la izquierda y estrella dorada a la derecha
+        r = 12
+        cx, cy = 18, h // 2
+        for y in range(h):
+            for x in range(w):
+                d = ((x - cx) ** 2 + (y - cy + 0.5) ** 2) ** 0.5
+                if d <= r - 1.5:
+                    px[x, y] = hex_rgb("#0a1838") + (255,)
+                elif d <= r:
+                    px[x, y] = oro + (255,)
+        if logo is not None:
+            l = logo.copy()
+            l.thumbnail((20, 20), Image.LANCZOS)
+            img.alpha_composite(l, (cx - l.width // 2, cy - l.height // 2))
+        estrella = ["...#...", "...#...", "..###..", "#######", "..###..", "...#...", "...#..."]
+        sx, sy = w - 18 - 3, h // 2 - 3
+        for y, fila in enumerate(estrella):
+            for x, c in enumerate(fila):
+                if c == "#":
+                    px[sx + x, sy + y] = (hex_rgb("#fff2a8") if (x, y) == (3, 3) else oro) + (255,)
+
+    if brillo is not None:
+        # Reflejo diagonal que cruza el panel (solo sobre el relleno, no sobre el contorno)
+        for y in range(3, h - 3):
+            for x in range(3, w - 3):
+                if px[x, y][3] and brillo <= x + y * 0.6 < brillo + 7:
+                    r_, g_, b_, a_ = px[x, y]
+                    px[x, y] = mezclar((r_, g_, b_), (255, 255, 255), 0.35) + (a_,)
+    return img
+
+
+def cuadros_anuncio(logo):
+    """Cuadros: apertura horizontal, reflejo que cruza y banner final quieto."""
+    cuadros = [dibujar_banner(round(BANNER_W * f), logo) for f in APERTURA]
+    recorrido = BANNER_W + BANNER_H
+    cuadros += [dibujar_banner(BANNER_W, logo, brillo=-20 + recorrido * i / (BRILLO_CUADROS - 1))
+                for i in range(BRILLO_CUADROS)]
+    cuadros.append(dibujar_banner(BANNER_W, logo))
+    return cuadros
+
+
+def agregar_anuncio(destino):
+    """Fuente heleon:anuncio (U+E000 en adelante) y sonido heleon:anuncio en el pack."""
+    logo_path = AQUI / "logos" / "heleon.png"
+    logo = Image.open(logo_path).convert("RGBA") if logo_path.exists() else None
+    tex = destino / "assets" / ITEMS_NS / "textures" / "font" / "anuncio"
+    tex.mkdir(parents=True, exist_ok=True)
+    for viejo in tex.iterdir():
+        viejo.unlink()
+    providers = []
+    cuadros = cuadros_anuncio(logo)
+    for i, img in enumerate(cuadros):
+        img.save(tex / f"{i}.png")
+        providers.append({"type": "bitmap", "file": f"{ITEMS_NS}:font/anuncio/{i}.png",
+                          "ascent": BANNER_ASCENT, "height": BANNER_ALTO, "chars": [chr(0xE000 + i)]})
+    fuente = destino / "assets" / ITEMS_NS / "font" / "anuncio.json"
+    fuente.parent.mkdir(parents=True, exist_ok=True)
+    fuente.write_text(json.dumps({"providers": providers}, indent=2), encoding="utf-8")
+
+    sonido = AQUI / "sonidos" / "anuncio.ogg"
+    if sonido.exists():
+        (destino / "assets" / ITEMS_NS / "sounds").mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(sonido, destino / "assets" / ITEMS_NS / "sounds" / "anuncio.ogg")
+        (destino / "assets" / ITEMS_NS / "sounds.json").write_text(json.dumps(
+            {"anuncio": {"sounds": [{"name": f"{ITEMS_NS}:anuncio", "stream": False}]}}, indent=2), encoding="utf-8")
+
+    # Vista previa: el banner final con un texto de ejemplo encima, a escala de GUI x2
+    final = cuadros[-1]
+    prev = Image.new("RGBA", (final.width + 40, final.height + 40), (60, 90, 60, 255))
+    prev.alpha_composite(final, (20, 20))
+    prev.resize((prev.width * 3, prev.height * 3), Image.NEAREST).save(SALIDA / "vista-anuncio.png")
+    tira = Image.new("RGBA", (BANNER_W + 8, (BANNER_H + 4) * len(cuadros) + 4), (60, 90, 60, 255))
+    for i, img in enumerate(cuadros):
+        tira.alpha_composite(img, (4 + (BANNER_W - img.width) // 2, 4 + i * (BANNER_H + 4)))
+    tira.resize((tira.width * 2, tira.height * 2), Image.NEAREST).save(SALIDA / "vista-anuncio-cuadros.png")
+    return len(cuadros)
+
+
 def hex_rgb(h):
     h = h.lstrip("#")
     return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
@@ -363,6 +494,7 @@ def main():
         numeros.append(img)
 
     comandos_items = agregar_items(destino)
+    agregar_anuncio(destino)
 
     fuente_path.parent.mkdir(parents=True, exist_ok=True)
     fuente_path.write_text(json.dumps(fuente, ensure_ascii=True, indent=2), encoding="utf-8")

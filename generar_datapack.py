@@ -229,6 +229,35 @@ def anuncios():
     return archivos
 
 
+def anuncio_banner(cuadros=19, apertura=6):
+    """Banner heleon:anuncio: se abre, pasa un reflejo y queda 5 s con el texto como subtitulo."""
+    f = f"data/{NS}/function/anuncio/"
+    glifo = lambda i: json.dumps({"text": chr(0xE000 + i), "font": f"{NS}:anuncio"}, ensure_ascii=False)
+    subtitulo = '{"nbt":"texto","storage":"heleon:anuncio","color":"#ffe9a8"}'
+    archivos = {
+        f + "mostrar.mcfunction": "\n".join([
+            "# Uso: /function heleon:anuncio/mostrar {texto:\"¡EVENTO ESPECIAL ESTE SÁBADO!\"}",
+            "$data modify storage heleon:anuncio texto set value \"$(texto)\"",
+            f"function {NS}:anuncio/cuadros/0",
+            f"execute as @a at @s run playsound {NS}:anuncio master @s ~ ~ ~ 1 1",
+        ]) + "\n",
+    }
+    for i in range(cuadros):
+        lineas = []
+        if i == 0:
+            lineas += ["title @a times 0 3 0", 'title @a subtitle ""']
+        if i == apertura - 1:
+            # El texto aparece cuando el banner ya esta abierto del todo
+            lineas.append(f"title @a subtitle {subtitulo}")
+        if i == cuadros - 1:
+            lineas.append("title @a times 0 100 20")
+        lineas.append(f"title @a title {glifo(i)}")
+        if i < cuadros - 1:
+            lineas.append(f"schedule function {NS}:anuncio/cuadros/{i + 1} 1t")
+        archivos[f + f"cuadros/{i}.mcfunction"] = "\n".join(lineas) + "\n"
+    return archivos
+
+
 def main():
     if len(sys.argv) != 2:
         raise SystemExit(__doc__)
@@ -240,6 +269,7 @@ def main():
     archivos = funciones(cuadros)
     archivos.update(contador())
     archivos.update(anuncios())
+    archivos.update(anuncio_banner())
     # Solo pack_format, como el datapack de Club Pala que si carga en el server: declarar
     # supported_formats + min/max_format a la vez puede hacer que el juego lo descarte.
     archivos["pack.mcmeta"] = json.dumps({"pack": {
