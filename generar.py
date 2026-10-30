@@ -337,17 +337,18 @@ def main():
         if ins.get("antes"):
             ch = ins["antes"] + "&r" + ch
         prio = ins.get("prioridad", 100 if ins["tipo"] == "rango" else 10)
-        # Primero se borra el prefijo/sufijo viejo para que no gane uno anterior con mas prioridad.
+        # creategroup no hace nada si el grupo ya existe. Despues se borra el prefijo/sufijo
+        # viejo para que no gane uno anterior con mas prioridad.
+        if ins["id"] != "default":
+            lineas.append(f'lp creategroup {ins["id"]}')
         if ins["tipo"] == "rango":
             lineas.append(f'lp group {ins["id"]} meta clear prefix')
             lineas.append(f'lp group {ins["id"]} meta setprefix {prio} "{ch} "')
         else:
-            # creategroup no hace nada si el grupo ya existe.
-            lineas.append(f'lp creategroup {ins["id"]}')
             lineas.append(f'lp group {ins["id"]} meta clear suffix')
             lineas.append(f'lp group {ins["id"]} meta setsuffix {prio} " {ch}"')
-            for jugador in ins.get("miembros", []):
-                lineas.append(f'lp user {jugador} parent add {ins["id"]}')
+        for jugador in ins.get("miembros", []):
+            lineas.append(f'lp user {jugador} parent add {ins["id"]}')
         lineas.append("")
     (SALIDA / "comandos-luckperms.txt").write_text("\n".join(lineas) + "\n", encoding="utf-8")
 

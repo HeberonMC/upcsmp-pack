@@ -32,7 +32,7 @@ scoreboard-teams:
   invisible-nametags: false
   # https://github.com/NEZNAMY/TAB/wiki/Feature-guide:-Sorting-players-in-tablist
   sorting-types:
-    - "GROUPS:dios,mod,helper,builder,creador_de_contenido,cacique,costenita_core,vip_plus,default"
+    - "GROUPS:dios,developer,mod,helper,builder,creador_de_contenido,cacique,costenita_core,vip_plus,default"
     - "PLACEHOLDER_A_TO_Z:%player%"
   case-sensitive-sorting: false
   can-see-friendly-invisibles: false
@@ -142,6 +142,7 @@ placeholder-refresh-intervals:
 assign-groups-by-permissions: false
 primary-group-finding-list:
   - dios
+  - developer
   - mod
   - helper
   - builder
