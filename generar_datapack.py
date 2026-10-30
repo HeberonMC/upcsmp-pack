@@ -229,32 +229,49 @@ def anuncios():
     return archivos
 
 
-def anuncio_banner(cuadros=19, apertura=6):
-    """Banner heleon:anuncio: se abre, pasa un reflejo y queda 5 s con el texto como subtitulo."""
+def anuncio_banner(segundos=8):
+    """Banner en la esquina superior izquierda. Elige tamano por el largo del texto, se abre desde
+    la izquierda, pasa un reflejo y queda en pantalla. Las medidas salen de salida/anuncio.json,
+    que escribe generar.py junto con el resource pack."""
+    meta_path = SALIDA / "anuncio.json"
+    if not meta_path.exists():
+        print("Aviso: falta salida/anuncio.json (corre primero generar.py); el anuncio no se incluye")
+        return {}
+    meta = json.loads(meta_path.read_text(encoding="utf-8"))
     f = f"data/{NS}/function/anuncio/"
-    glifo = lambda i: json.dumps({"text": chr(0xE000 + i), "font": f"{NS}:anuncio"}, ensure_ascii=False)
-    subtitulo = '{"nbt":"texto","storage":"heleon:anuncio","color":"#ffe9a8"}'
-    archivos = {
-        f + "mostrar.mcfunction": "\n".join([
-            "# Uso: /function heleon:anuncio/mostrar {texto:\"¡EVENTO ESPECIAL ESTE SÁBADO!\"}",
-            "$data modify storage heleon:anuncio texto set value \"$(texto)\"",
-            f"function {NS}:anuncio/cuadros/0",
-            f"execute as @a at @s run playsound {NS}:anuncio master @s ~ ~ ~ 1 1",
-        ]) + "\n",
-    }
-    for i in range(cuadros):
-        lineas = []
-        if i == 0:
-            lineas += ["title @a times 0 3 0", 'title @a subtitle ""']
-        if i == apertura - 1:
-            # El texto aparece cuando el banner ya esta abierto del todo
-            lineas.append(f"title @a subtitle {subtitulo}")
-        if i == cuadros - 1:
-            lineas.append("title @a times 0 100 20")
-        lineas.append(f"title @a title {glifo(i)}")
-        if i < cuadros - 1:
-            lineas.append(f"schedule function {NS}:anuncio/cuadros/{i + 1} 1t")
-        archivos[f + f"cuadros/{i}.mcfunction"] = "\n".join(lineas) + "\n"
+    sc = "heleon_anuncio_largo"
+    mostrar = [
+        "# Uso: /function heleon:anuncio/mostrar {texto:\"¡EVENTO ESTE SÁBADO!\"}",
+        "$data modify storage heleon:anuncio texto set value \"$(texto)\"",
+        f"scoreboard objectives add {sc} dummy",
+        f"execute store result score #largo {sc} run data get storage heleon:anuncio texto",
+    ]
+    archivos = {}
+    tope = 0
+    for clave, m in meta.items():
+        rango = f"{tope + 1}..{m['letras']}" if clave != list(meta)[-1] else f"{tope + 1}.."
+        tope = m["letras"]
+        mostrar.append(f"execute if score #largo {sc} matches {rango} run function {NS}:anuncio/{clave}/0")
+        glifo = lambda i: json.dumps([{"text": chr(m["base"] + i) + m["espacio_banner"], "font": f"{NS}:anuncio"}],
+                                     ensure_ascii=False)
+        subtitulo = json.dumps([{"nbt": "texto", "storage": "heleon:anuncio", "font": f"{NS}:anuncio_texto",
+                                 "color": "#ffe9a8"},
+                                {"text": m["espacio_texto"], "font": f"{NS}:anuncio_texto"}], ensure_ascii=False)
+        for i in range(m["cuadros"]):
+            lineas = []
+            if i == 0:
+                lineas += ["title @a times 0 3 0", 'title @a subtitle ""']
+            if i == m["apertura"] - 1:
+                # El texto aparece cuando el banner ya esta abierto del todo
+                lineas.append(f"title @a subtitle {subtitulo}")
+            if i == m["cuadros"] - 1:
+                lineas.append(f"title @a times 0 {segundos * 20} 20")
+            lineas.append(f"title @a title {glifo(i)}")
+            if i < m["cuadros"] - 1:
+                lineas.append(f"schedule function {NS}:anuncio/{clave}/{i + 1} 1t")
+            archivos[f + f"{clave}/{i}.mcfunction"] = "\n".join(lineas) + "\n"
+    mostrar.append(f"execute as @a at @s run playsound {NS}:anuncio master @s ~ ~ ~ 1 1")
+    archivos[f + "mostrar.mcfunction"] = "\n".join(mostrar) + "\n"
     return archivos
 
 
