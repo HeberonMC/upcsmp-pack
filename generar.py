@@ -285,9 +285,10 @@ def main():
     shutil.copytree(pack, destino, dirs_exist_ok=True)
 
     carpeta = destino / "assets/minecraft/textures" / TEXTURAS
-    if carpeta.exists():
-        shutil.rmtree(carpeta)
+    # Se vacia en vez de borrarla: en Windows una carpeta abierta (Explorador, terminal) no se puede quitar.
     carpeta.mkdir(parents=True, exist_ok=True)
+    for viejo in carpeta.iterdir():
+        viejo.unlink()
 
     fuente_path = destino / "assets/minecraft/font/default.json"
     fuente = json.loads(fuente_path.read_text(encoding="utf-8")) if fuente_path.exists() else {"providers": []}
@@ -412,6 +413,8 @@ def main():
             lineas.append(f'lp group {ins["id"]} meta clear prefix')
             lineas.append(f'lp group {ins["id"]} meta setprefix {prio} "{ch} "')
         else:
+            # Los teams solo llevan sufijo: se borra cualquier prefijo viejo tipo "[LASFARK]".
+            lineas.append(f'lp group {ins["id"]} meta clear prefix')
             lineas.append(f'lp group {ins["id"]} meta clear suffix')
             lineas.append(f'lp group {ins["id"]} meta setsuffix {prio} " {ch}"')
         for jugador in ins.get("miembros", []):
