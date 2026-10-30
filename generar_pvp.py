@@ -4,7 +4,7 @@ Uso:
     python generar_pvp.py
 
 Escribe salida/ce-pvp.yml: los eventos pvp_inicio, pvp_desactivado y pvp_activado. En vez de
-una bossbar, cada 30 s guardan el estado y el tiempo en variables de ServerVariables
+una bossbar, cada segundo guardan el estado y el tiempo en variables de ServerVariables
 (pvp_on y pvp_tiempo), que TAB lee con %servervariables_globalvalue_...%.
 
 by Heleon ST
@@ -16,7 +16,7 @@ SALIDA = AQUI / "salida"
 
 DESACTIVADO_SEG = 10 * 60
 ACTIVADO_SEG = 40 * 60
-PASO = 30
+PASO = 1                            # cada cuantos segundos se actualiza el scoreboard
 
 
 def mmss(seg):
@@ -30,12 +30,13 @@ def ciclo(nombre, encendido, segundos, siguiente, gamerule, mensaje, sonido):
         "    actions:",
         "      default:",
         f"      - 'console_command: gamerule minecraft:pvp {gamerule}'",
-        f"      - 'console_command: svar set pvp_on {'si' if encendido else 'no'}'",
+        f"      - 'console_command: svar set pvp_on {'si' if encendido else 'no'} silent:true'",
         f"      - 'to_all: json_message: {mensaje}'",
         f"      - 'console_command: execute as @a at @s run playsound {sonido}'",
     ]
     for restante in range(segundos, 0, -PASO):
-        lineas.append(f"      - 'console_command: svar set pvp_tiempo {mmss(restante)}'")
+        # silent:true evita un mensaje en consola por cada actualizacion
+        lineas.append(f"      - 'console_command: svar set pvp_tiempo {mmss(restante)} silent:true'")
         lineas.append(f"      - 'wait: {PASO}'")
     lineas.append(f"      - 'call_event: {siguiente}'")
     return lineas
