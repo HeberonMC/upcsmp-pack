@@ -240,11 +240,18 @@ def anuncio_banner(segundos=8):
     meta = json.loads(meta_path.read_text(encoding="utf-8"))
     f = f"data/{NS}/function/anuncio/"
     sc = "heleon_anuncio_largo"
+    tope_letras = list(meta.values())[-1]["letras"]
     mostrar = [
         "# Uso: /function heleon:anuncio/mostrar {texto:\"¡EVENTO ESTE SÁBADO!\"}",
         "$data modify storage heleon:anuncio texto set value \"$(texto)\"",
+        'data modify storage heleon:anuncio cola set value ""',
         f"scoreboard objectives add {sc} dummy",
         f"execute store result score #largo {sc} run data get storage heleon:anuncio texto",
+        f"# Mas de {tope_letras} letras no caben en el banner mas grande: se corta y termina en ...",
+        f"execute if score #largo {sc} matches {tope_letras + 1}.. run data modify storage heleon:anuncio cola set value \"...\"",
+        f"execute if score #largo {sc} matches {tope_letras + 1}.. run data modify storage heleon:anuncio texto "
+        f"set string storage heleon:anuncio texto 0 {tope_letras - 3}",
+        f"execute if score #largo {sc} matches {tope_letras + 1}.. run scoreboard players set #largo {sc} {tope_letras}",
     ]
     archivos = {}
     tope = 0
@@ -255,6 +262,8 @@ def anuncio_banner(segundos=8):
         glifo = lambda i: json.dumps([{"text": chr(m["base"] + i) + m["espacio_banner"], "font": f"{NS}:anuncio"}],
                                      ensure_ascii=False)
         subtitulo = json.dumps([{"nbt": "texto", "storage": "heleon:anuncio", "font": f"{NS}:anuncio_texto",
+                                 "color": "#ffe9a8"},
+                                {"nbt": "cola", "storage": "heleon:anuncio", "font": f"{NS}:anuncio_texto",
                                  "color": "#ffe9a8"},
                                 {"text": m["espacio_texto"], "font": f"{NS}:anuncio_texto"}], ensure_ascii=False)
         for i in range(m["cuadros"]):
@@ -272,6 +281,27 @@ def anuncio_banner(segundos=8):
             archivos[f + f"{clave}/{i}.mcfunction"] = "\n".join(lineas) + "\n"
     mostrar.append(f"execute as @a at @s run playsound {NS}:anuncio master @s ~ ~ ~ 1 1")
     archivos[f + "mostrar.mcfunction"] = "\n".join(mostrar) + "\n"
+
+    # Enlaces: el banner avisa y el chat lleva el enlace clicable (un /title no se puede clicar)
+    def chat_enlace(texto_boton):
+        return json.dumps(["",
+            {"text": "\n▬▬▬▬▬▬▬▬ ", "color": "dark_gray"},
+            {"text": "✦ UPCSMP ✦", "color": "#3fd0ff", "bold": True},
+            {"text": " ▬▬▬▬▬▬▬▬\n", "color": "dark_gray"},
+            {"text": f"  {texto_boton}\n", "color": "aqua", "bold": True, "underlined": True,
+             "click_event": {"action": "open_url", "url": "$(url)"},
+             "hover_event": {"action": "show_text", "value": {"text": "$(url)", "color": "gray"}}},
+            {"text": "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n", "color": "dark_gray"}], ensure_ascii=False)
+    archivos[f + "enlace.mcfunction"] = "\n".join([
+        "# Uso: /function heleon:anuncio/enlace {url:\"https://...\"}",
+        f"$tellraw @a {chat_enlace('[ Clic aquí para abrir el enlace ]')}",
+        f"function {NS}:anuncio/mostrar {{texto:\"¡Nuevo enlace en el chat!\"}}",
+    ]) + "\n"
+    archivos[f + "enlace_con_texto.mcfunction"] = "\n".join([
+        "# Uso: /function heleon:anuncio/enlace_con_texto {url:\"https://...\",texto:\"Fotos del evento\"}",
+        f"$tellraw @a {chat_enlace('[ $(texto) ]')}",
+        f"$function {NS}:anuncio/mostrar {{texto:\"$(texto)\"}}",
+    ]) + "\n"
     return archivos
 
 

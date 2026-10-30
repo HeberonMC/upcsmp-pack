@@ -163,7 +163,8 @@ ANUNCIO_IZQ, ANUNCIO_ARRIBA = -250, -140
 BANNER_H = 32                       # alto visible del banner (1 px de imagen = 1 px de GUI)
 BANNER_LIENZO = 128                 # alto total con relleno: en /title (x4) son 32 unidades
 CAP_IZQ, CAP_DER = 34, 20           # zona del logo y de la estrella
-TAMANOS = {"s": (150, 12), "m": (240, 20), "l": (360, 30)}   # ancho del texto, letras aprox.
+# ancho del texto en px y letras aprox. El ultimo es el tope: el datapack recorta lo que no quepa.
+TAMANOS = {"s": (150, 12), "m": (240, 20), "l": (360, 30), "xl": (460, 38)}
 APERTURA = [0.12, 0.28, 0.46, 0.64, 0.82, 1.0]
 BRILLO_CUADROS = 12
 TEXTO_ASCENT = {"ascii.png": 78, "nonlatin_european.png": 78, "accented.png": 81}
@@ -316,7 +317,8 @@ def agregar_anuncio(destino):
     fuentes = destino / "assets" / ITEMS_NS / "font"
     fuentes.mkdir(parents=True, exist_ok=True)
     (fuentes / "anuncio.json").write_text(json.dumps({"providers": banner_prov}, indent=2), encoding="utf-8")
-    texto_prov = fuente_texto_movible(destino) + [{"type": "space", "advances": espacios_texto}]
+    # El espacio va primero: ascii.png tambien trae " " (celda vacia, ancho 0) y gana el primer proveedor.
+    texto_prov = [{"type": "space", "advances": espacios_texto}] + fuente_texto_movible(destino)
     (fuentes / "anuncio_texto.json").write_text(json.dumps({"providers": texto_prov}, indent=2), encoding="utf-8")
     (SALIDA / "anuncio.json").write_text(json.dumps(meta, indent=2), encoding="utf-8")
 
