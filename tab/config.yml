@@ -130,14 +130,14 @@ conditions:
   # Ciclo de PvP: lo escriben los eventos de ConditionalEvents en ServerVariables (pvp_on, pvp_tiempo)
   pvp_estado:
     conditions:
-      - "%servervariables_value_pvp_on%=si"
+      - "%servervariables_globalvalue_pvp_on%=si"
     true: "&c&lPVP ACTIVADO"
     false: "&a&lPVP DESACTIVADO"
   pvp_tiempo:
     conditions:
-      - "%servervariables_value_pvp_on%=si"
-    true: "&7termina en &f%servervariables_value_pvp_tiempo%"
-    false: "&7se activa en &f%servervariables_value_pvp_tiempo%"
+      - "%servervariables_globalvalue_pvp_on%=si"
+    true: "&7termina en &f%servervariables_globalvalue_pvp_tiempo%"
+    false: "&7se activa en &f%servervariables_globalvalue_pvp_tiempo%"
   nick: # use it with %condition:nick%
     conditions:
       - "%player%=%essentials_nickname%"

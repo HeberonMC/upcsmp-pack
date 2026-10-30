@@ -5,7 +5,7 @@ Uso:
 
 Escribe salida/ce-pvp.yml: los eventos pvp_inicio, pvp_desactivado y pvp_activado. En vez de
 una bossbar, cada 30 s guardan el estado y el tiempo en variables de ServerVariables
-(pvp_on y pvp_tiempo), que TAB lee con %servervariables_value_...%.
+(pvp_on y pvp_tiempo), que TAB lee con %servervariables_globalvalue_...%.
 
 by Heleon ST
 """
