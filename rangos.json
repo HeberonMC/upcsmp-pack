@@ -20,7 +20,7 @@
       "miembros": ["Andruuu", "JamesPerez"] },
     { "id": "los_tres_piernas", "texto": "LTP",          "color": "#e9ecef", "char": "EA46", "tipo": "team",
       "miembros": ["KiwisitoUwU14", "alcatel", "KiwisiUwU14"] },
-    { "id": "soul_society",     "texto": "SOUL SOCIETY", "color": "#1c7ed6", "char": "EA47", "tipo": "team",
+    { "id": "soul_society",     "texto": "SOUL SOCIETY", "color": "#1c7ed6", "char": "EA47", "tipo": "team", "imagen": "logos/soul_society.png", "char_icono": "EA83", "quitar_fondo": "oscuro",
       "miembros": ["Julian_7v7", "Patrick_juan", "Estaradero1"] },
     { "id": "los_mondacones",   "texto": "LM",           "color": "#2b2b30", "char": "EA48", "tipo": "team",
       "miembros": ["Jhonaah", "M0ndaco", "DavidM", "Walalow", "chwilson"] }

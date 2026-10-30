@@ -351,6 +351,15 @@ def cargar_icono(ruta, alto=ICONO_ALTO, quitar_fondo=True):
     # Si el PNG ya trae transparencia, el blanco es parte del logo (letras, brillos): no se toca.
     # Con quitar_fondo: false se deja tal cual (logos que ya son una placa con su fondo).
     ya_transparente = img.getextrema()[3][0] < 255
+    if quitar_fondo == "oscuro" and not ya_transparente:
+        # Fondo negro (con texturas tenues): cuanto mas oscuro, mas transparente; se "desmezcla" del negro.
+        for y in range(img.height):
+            for x in range(img.width):
+                r, g, b, a = px[x, y]
+                t = min(1.0, max(0.0, (max(r, g, b) - 45) / 130))
+                px[x, y] = (0, 0, 0, 0) if t <= 0.02 else \
+                    tuple(min(255, round(c / t)) for c in (r, g, b)) + (round(a * t),)
+        quitar_fondo = False
     for y in range(img.height if quitar_fondo and not ya_transparente else 0):
         for x in range(img.width):
             r, g, b, a = px[x, y]
