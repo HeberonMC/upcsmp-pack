@@ -6,7 +6,8 @@
     { "id": "helper",               "texto": "HELPER",    "color": "#1fa67a", "char": "EA02", "tipo": "rango", "prioridad": 80 },
     { "id": "builder",              "texto": "BUILDER",   "color": "#c7651a", "char": "EA03", "tipo": "rango", "prioridad": 70 },
     { "id": "creador_de_contenido", "texto": "CREADOR",   "color": "#e0245e", "char": "EA04", "tipo": "rango", "prioridad": 60 },
-    { "id": "costenita_core",       "texto": "COSTEÑITA", "color": "#d63ac4", "char": "EA07", "tipo": "rango", "prioridad": 55, "antes": "&d★★★ " },
+    { "id": "cacique",              "texto": "CACIQUE",   "color": "#f08c00", "char": "EA08", "tipo": "rango", "prioridad": 57, "antes": "&6★★★★★ " },
+    { "id": "costenita_core",      "texto": "COSTEÑITA", "color": "#d63ac4", "char": "EA07", "tipo": "rango", "prioridad": 55, "antes": "&d★★★ " },
     { "id": "vip_plus",            "texto": "VIP+",      "color": "#8a3ffc", "char": "EA05", "tipo": "rango", "prioridad": 50 },
     { "id": "default",              "texto": "USER",      "color": "#6b7280", "char": "EA06", "tipo": "rango", "prioridad": 10 },
 
