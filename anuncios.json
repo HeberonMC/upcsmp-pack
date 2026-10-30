@@ -19,13 +19,6 @@
       ]
     },
     {
-      "titulo": "DISCORD",
-      "lineas": [
-        "Únete a la comunidad: eventos, avisos y soporte."
-      ],
-      "boton": { "texto": "[ Entrar al Discord ]", "url": "https://discord.gg/TU-INVITACION" }
-    },
-    {
       "titulo": "SCOREBOARD",
       "lineas": [
         "¿Te tapa la pantalla? Puedes ocultarlo y volver a mostrarlo."
