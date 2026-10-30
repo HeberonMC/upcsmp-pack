@@ -181,13 +181,12 @@ def main():
 
     archivos = funciones(cuadros)
     archivos.update(contador())
+    # Solo pack_format, como el datapack de Club Pala que si carga en el server: declarar
+    # supported_formats + min/max_format a la vez puede hacer que el juego lo descarte.
     archivos["pack.mcmeta"] = json.dumps({"pack": {
         "description": "Animaciones de UPCSMP §8· by Heleon ST",
         "pack_format": 48,
-        "supported_formats": [48, 120],
-        "min_format": 48,
-        "max_format": 120,
-    }}, indent=2) + "\n"
+    }}, indent=2, ensure_ascii=False) + "\n"
 
     SALIDA.mkdir(exist_ok=True)
     zip_path = SALIDA / "heleon-animaciones.zip"
