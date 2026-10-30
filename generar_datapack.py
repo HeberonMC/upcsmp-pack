@@ -171,6 +171,64 @@ def contador():
     }
 
 
+def anuncios():
+    """Anuncios de anuncios.json: rotan solos cada X minutos desde que carga el datapack."""
+    ruta = AQUI / "anuncios.json"
+    if not ruta.exists():
+        return {}
+    cfg = json.loads(ruta.read_text(encoding="utf-8"))
+    lista = cfg["anuncios"]
+    segundos = int(cfg.get("cada_minutos", 5) * 60)
+    sonido = cfg.get("sonido", "minecraft:block.note_block.chime")
+    sc = "heleon_anuncio"
+    f = f"data/{NS}/function/anuncios/"
+    archivos = {}
+
+    for i, a in enumerate(lista):
+        partes = [
+            "",
+            {"text": "\n▬▬▬▬▬▬▬▬ ", "color": "dark_gray"},
+            {"text": "✦ UPCSMP ✦", "color": "#3fd0ff", "bold": True},
+            {"text": " ▬▬▬▬▬▬▬▬\n", "color": "dark_gray"},
+            {"text": f"  » {a['titulo']}\n", "color": "gold", "bold": True},
+        ]
+        for linea in a.get("lineas", []):
+            partes.append({"text": f"  {linea}\n", "color": "gray"})
+        boton = a.get("boton")
+        if boton:
+            if "url" in boton:
+                click = {"action": "open_url", "url": boton["url"]}
+                ayuda = "Clic para abrir"
+            else:
+                click = {"action": "run_command", "command": boton["comando"].lstrip("/")}
+                ayuda = f"Clic para usar /{boton['comando'].lstrip('/')}"
+            partes.append({"text": f"  {boton['texto']}\n", "color": "aqua", "bold": True,
+                           "click_event": click,
+                           "hover_event": {"action": "show_text", "value": {"text": ayuda, "color": "gray"}}})
+        partes.append({"text": "▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬\n", "color": "dark_gray"})
+        archivos[f + f"{i}.mcfunction"] = "\n".join([
+            f"tellraw @a {json.dumps(partes, ensure_ascii=False)}",
+            f"execute as @a at @s run playsound {sonido} master @s ~ ~ ~ 0.6 1.2",
+        ]) + "\n"
+
+    archivos[f + "iniciar.mcfunction"] = "\n".join([
+        f"# Arranca solo al cargar el datapack. Un anuncio cada {segundos} s.",
+        f"scoreboard objectives add {sc} dummy",
+        f"scoreboard players set #total {sc} {len(lista)}",
+        f"schedule function {NS}:anuncios/siguiente {segundos}s replace",
+    ]) + "\n"
+    archivos[f + "siguiente.mcfunction"] = "\n".join(
+        [f"execute if score #n {sc} matches {i} run function {NS}:anuncios/{i}" for i in range(len(lista))] + [
+            f"scoreboard players add #n {sc} 1",
+            f"scoreboard players operation #n {sc} %= #total {sc}",
+            f"schedule function {NS}:anuncios/siguiente {segundos}s replace",
+        ]) + "\n"
+    archivos[f + "parar.mcfunction"] = f"schedule clear {NS}:anuncios/siguiente\n"
+    archivos["data/minecraft/tags/function/load.json"] = json.dumps(
+        {"values": [f"{NS}:anuncios/iniciar"]}, indent=2) + "\n"
+    return archivos
+
+
 def main():
     if len(sys.argv) != 2:
         raise SystemExit(__doc__)
@@ -181,6 +239,7 @@ def main():
 
     archivos = funciones(cuadros)
     archivos.update(contador())
+    archivos.update(anuncios())
     # Solo pack_format, como el datapack de Club Pala que si carga en el server: declarar
     # supported_formats + min/max_format a la vez puede hacer que el juego lo descarte.
     archivos["pack.mcmeta"] = json.dumps({"pack": {

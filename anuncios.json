@@ -1,0 +1,36 @@
+{
+  "_ayuda": "Anuncios que rotan solos. cada_minutos: cada cuanto sale uno. Cada anuncio: titulo, lineas y un boton opcional (url para abrir una pagina, o comando para ejecutar al hacer clic). Despues de editar: python generar_datapack.py ... y sube el zip.",
+  "cada_minutos": 5,
+  "sonido": "minecraft:block.note_block.chime",
+  "anuncios": [
+    {
+      "titulo": "ARENA PVP",
+      "lineas": [
+        "Pelea en el coliseo: explosiones, cristales y todo vale.",
+        "Se regenera sola cada 30 minutos.",
+        "Entra con el inventario vacío (usa el botón de la entrada)."
+      ]
+    },
+    {
+      "titulo": "TEAMS",
+      "lineas": [
+        "¿Quieres tu propio team con insignia o logo?",
+        "Habla con el staff y lo agregamos al TAB y al chat."
+      ]
+    },
+    {
+      "titulo": "DISCORD",
+      "lineas": [
+        "Únete a la comunidad: eventos, avisos y soporte."
+      ],
+      "boton": { "texto": "[ Entrar al Discord ]", "url": "https://discord.gg/TU-INVITACION" }
+    },
+    {
+      "titulo": "SCOREBOARD",
+      "lineas": [
+        "¿Te tapa la pantalla? Puedes ocultarlo y volver a mostrarlo."
+      ],
+      "boton": { "texto": "[ Ocultar / mostrar ]", "comando": "sb" }
+    }
+  ]
+}
